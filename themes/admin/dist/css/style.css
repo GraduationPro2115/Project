@@ -1,0 +1,11 @@
+.t_s_col.t_s_col_date { float: left; width: 150px; }
+.t_s_col { float: left; padding: 10px;  width: 24%;  }
+.t_s_col .t_s_slot { float: left; width: 48%; background: #23bc9a; color: #ffffff; text-align: center; margin: 1px; cursor: pointer; }
+.t_s_col .t_s_slot.booked { text-decoration: line-through; background-color: #d0d0d0; cursor: not-allowed; }
+.t_s_row { clear: both; border: 1px solid #ffffff; /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f0f9ff+0,cbebff+47,a1dbff+100;Blue+3D+%2313 */
+
+ }
+ .t_s_row:last-child { margin-bottom: 15px;  }
+ .t_s_row:after { clear: both; display: table; content: " "; }
+.direct-chat-messages { height: 385px; }
+.box-profile { padding: 10px; }
