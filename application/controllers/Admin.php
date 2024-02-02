@@ -265,37 +265,38 @@ class Admin extends MY_Controller {
         }
     }
 
-      
-/* ========== End Categories ========== */    
+/* ========== End Categories ========== */
+
+
 /*----------- Users related functions , manage all users listings and process ------------*/
     public function add_user(){
-        /*if(_is_user_login($this)){
+        if(_is_user_login($this)){
             $data = array();
             if($_POST){
                 $this->load->library('form_validation');
-                
+
                 $this->form_validation->set_rules('user_fullname', 'Full Name', 'trim|required');
                 $this->form_validation->set_rules('user_email', 'Email Id', 'trim|required');
                 $this->form_validation->set_rules('user_password', 'Password', 'trim|required');
                 $this->form_validation->set_rules('user_type', 'User Type', 'trim|required');
-                if ($this->form_validation->run() == FALSE) 
+                if ($this->form_validation->run() == FALSE)
         		{
-        		  
+
         			$data["error"] = '<div class="alert alert-warning alert-dismissible" role="alert">
                                   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                   <strong>Warning!</strong> '.$this->form_validation->error_string().'
                                 </div>';
-                    
+
         		}else
                 {
                         $user_fullname = $this->input->post("user_fullname");
                         $user_email = $this->input->post("user_email");
                         $user_password = $this->input->post("user_password");
                         $user_type = $this->input->post("user_type");
-                        
-                        
+
+
                         $status = ($this->input->post("status")=="on")? 1 : 0;
-                        
+
                             $this->common_model->data_insert("users",
                                 array(
                                 "user_fullname"=>$user_fullname,
@@ -307,14 +308,15 @@ class Admin extends MY_Controller {
                                   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                                   <strong>Success!</strong> User Added Successfully
                                 </div>');
-                        
+
                 }
             }
-            
+
             $data["user_types"] = $this->users_model->get_user_type();
             $this->load->view("admin/users/add_user",$data);
-        }*/
+        }
     }
+
 	 public function listuser($user_id){
         if(_is_user_login($this)){
             $data = array();
@@ -324,8 +326,100 @@ class Admin extends MY_Controller {
         }
     }
 
+    public function edit_user($user_id){
+        if(_is_user_login($this)){
+            $data = array();
+            $data["user_types"] = $this->users_model->get_user_type();
+            
+            $user = $this->users_model->get_user_by_id($user_id);
+            $user_type_id = _get_current_user_type_id($this);
+            $c_user_id = _get_current_user_id($this);
+            if($user_type_id != 0){
+                if($c_user_id != $user_id){
+                    exit();
+                }
+            }
+            
+            $data["user"] = $user;
+            if($_POST){
+                $this->load->library('form_validation');
+                
+                $this->form_validation->set_rules('user_fullname', 'Full Name', 'trim|required');
+                $this->form_validation->set_rules('user_password', 'Password', 'trim|required');
+                if ($this->form_validation->run() == FALSE) 
+        		{
+        		  
+        			$data["error"] = '<div class="alert alert-warning alert-dismissible" role="alert">
+                                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                  <strong>Warning!</strong> '.$this->form_validation->error_string().'
+                                </div>';
+                    
+        		}else
+                {
+                        $user_fullname = $this->input->post("user_fullname");
+                        $user_type = $this->input->post("user_type");
+                        
+                        $update_array = array(
+                                "user_fullname"=>$user_fullname,
+                                "user_phone"=>$this->input->post("user_phone"),
+                                "user_bdate"=>date("Y-m-d",strtotime($this->input->post("user_bdate"))));
+                        if($user_id != _get_current_user_id($this)){
+                            $status = ($this->input->post("status")=="on")? 1 : 0;
+                            $update_array["user_status"] = $status;
+                        }        
+                        $user_password = $this->input->post("user_password");
+                        if(_decrypt_val($user->user_password) != $user_password && trim($user_password) != ""){
+                            $update_array["user_password"]= _encrypt_val($user_password);
+                        }
+                        if(isset( $_FILES["user_image"]) && $_FILES["user_image"]["size"] > 0)
+                        {
+                            $config['upload_path']          = './uploads/profile/';
+                            $config['allowed_types']        = 'gif|jpg|png|jpeg';
+                            if(!is_dir($config['upload_path']))
+                            {
+                                mkdir($config['upload_path']);
+                            }
+                            $this->load->library('upload', $config);
+                            if ( ! $this->upload->do_upload('user_image'))
+                            {
+                                $error = array('error' => $this->upload->display_errors());
+                            }
+                            else
+                            {
+                                $img_data = $this->upload->data();
+                                $user_image=$img_data['file_name'];
+                                 $update_array["user_image"] =$user_image;
+                            }
+                        }
+                            $this->common_model->data_update("users",$update_array,array("user_id"=>$user_id)
+                                );
+                            $this->session->set_flashdata("message", '<div class="alert alert-success alert-dismissible" role="alert">
+                                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                  <strong>Success!</strong> User Added Successfully
+                                </div>');
+                                redirect("admin/edit_user/".$user->user_id);
+                        
+                }
+            }
+            
+            
+            $this->load->view("admin/users/edit_user",$data);
+        }
+    }
 
-    //================================ user history ===========================================
+    function delete_user($user_id){
+        if(_is_user_login($this)){
+            $data = array();
+            $user  = $this->users_model->get_user_by_id($user_id);
+            if($user){
+                $this->db->query("Delete from users where user_id = '".$user->user_id."'");
+                redirect("admin/listuser/".$user->user_type_id);
+            }
+        }
+    }
+/*------------END Users -----------------*/
+
+//================================ user history ===========================================
     public function user_history($user_id){
 
         if(_is_user_login($this)){
@@ -496,101 +590,7 @@ class Admin extends MY_Controller {
             redirect('admin');
         }
     }
-
-
-
-
-    public function edit_user($user_id){
-        if(_is_user_login($this)){
-            $data = array();
-            $data["user_types"] = $this->users_model->get_user_type();
-            
-            $user = $this->users_model->get_user_by_id($user_id);
-            $user_type_id = _get_current_user_type_id($this);
-            $c_user_id = _get_current_user_id($this);
-            if($user_type_id != 0){
-                if($c_user_id != $user_id){
-                    exit();
-                }
-            }
-            
-            $data["user"] = $user;
-            if($_POST){
-                $this->load->library('form_validation');
-                
-                $this->form_validation->set_rules('user_fullname', 'Full Name', 'trim|required');
-                $this->form_validation->set_rules('user_password', 'Password', 'trim|required');
-                if ($this->form_validation->run() == FALSE) 
-        		{
-        		  
-        			$data["error"] = '<div class="alert alert-warning alert-dismissible" role="alert">
-                                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                                  <strong>Warning!</strong> '.$this->form_validation->error_string().'
-                                </div>';
-                    
-        		}else
-                {
-                        $user_fullname = $this->input->post("user_fullname");
-                        $user_type = $this->input->post("user_type");
-                        
-                        $update_array = array(
-                                "user_fullname"=>$user_fullname,
-                                "user_phone"=>$this->input->post("user_phone"),
-                                "user_bdate"=>date("Y-m-d",strtotime($this->input->post("user_bdate"))));
-                        if($user_id != _get_current_user_id($this)){
-                            $status = ($this->input->post("status")=="on")? 1 : 0;
-                            $update_array["user_status"] = $status;
-                        }        
-                        $user_password = $this->input->post("user_password");
-                        if(_decrypt_val($user->user_password) != $user_password && trim($user_password) != ""){
-                            $update_array["user_password"]= _encrypt_val($user_password);
-                        }
-                        if(isset( $_FILES["user_image"]) && $_FILES["user_image"]["size"] > 0)
-                        {
-                            $config['upload_path']          = './uploads/profile/';
-                            $config['allowed_types']        = 'gif|jpg|png|jpeg';
-                            if(!is_dir($config['upload_path']))
-                            {
-                                mkdir($config['upload_path']);
-                            }
-                            $this->load->library('upload', $config);
-                            if ( ! $this->upload->do_upload('user_image'))
-                            {
-                                $error = array('error' => $this->upload->display_errors());
-                            }
-                            else
-                            {
-                                $img_data = $this->upload->data();
-                                $user_image=$img_data['file_name'];
-                                 $update_array["user_image"] =$user_image;
-                            }
-                        }
-                            $this->common_model->data_update("users",$update_array,array("user_id"=>$user_id)
-                                );
-                            $this->session->set_flashdata("message", '<div class="alert alert-success alert-dismissible" role="alert">
-                                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                                  <strong>Success!</strong> User Added Successfully
-                                </div>');
-                                redirect("admin/edit_user/".$user->user_id);
-                        
-                }
-            }
-            
-            
-            $this->load->view("admin/users/edit_user",$data);
-        }
-    }
-    function delete_user($user_id){
-        if(_is_user_login($this)){
-            $data = array();
-            $user  = $this->users_model->get_user_by_id($user_id);
-            if($user){
-                $this->db->query("Delete from users where user_id = '".$user->user_id."'");
-                redirect("admin/listuser/".$user->user_type_id);
-            }
-        }
-    }
-/*------------END Users -----------------*/    
+// ====================== end user history ======================
 
 /* ========== Business Setting ========== */
     public function list_business()
@@ -608,8 +608,6 @@ class Admin extends MY_Controller {
             redirect('admin');
         }
     }
-
-    
     public function business_add(){
         if(_is_user_login($this)){
            $data["categories"] = $this->category_model->get_categories();
@@ -721,6 +719,7 @@ class Admin extends MY_Controller {
         }
     }
 /* ========== End Business Setting ========== */
+
 /* ========== Area Management =============== */
         public function area_country(){
             if(_is_user_login($this)){

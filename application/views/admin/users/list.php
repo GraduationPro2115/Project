@@ -39,6 +39,12 @@
       <section class="content">
         <div class="container-fluid">
           <div class="card">
+              <div class="card-header" >
+                  <h1 class="card-title">Users</h1>
+                  <div class="card-tools right">
+                      <a href="<?php echo site_url("admin/add_user"); ?>" class="btn btn-default btn-sm">Add New</a>
+                  </div>
+              </div>
             <div class="card-body">
               <table id="example1" class="table table-bordered table-hover">
                 <thead>

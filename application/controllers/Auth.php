@@ -31,7 +31,7 @@ class Auth extends CI_Controller
                     }else{
                         $this->session->set_flashdata("message", '<div class="alert alert-warning alert-dismissible" role="alert">
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <strong>Warning!</strong> Purchase code not match with item id '.$res->data.'
+                            <strong>Warning!</strong> Error 400 '.$res->data.'
                         </div>');
                     }
                 }else{

@@ -121,7 +121,7 @@ class Business extends MY_Controller {
             redirect('admin');
         }
     }
-       public function edit_service($id)
+    public function edit_service($id)
 	{
 	   if(_is_user_login($this))
        {

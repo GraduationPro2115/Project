@@ -137,17 +137,17 @@
             </ul>
           </li>
           <?php if(!IS_TEST) { ?>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="fa fa-cog nav-icon"></i>
-              <p>Settings <i class="fa fa-angle-right right"></i></p> <small class="label pull-right bg-green"></small>
-            </a>
-            <ul class="nav-treeview">
-              <li><a href="<?php echo site_url("auth/app"); ?>" class="nav-link"><i class="far fa-circle nav-icon"></i>
-                  <p>Api Key</p>
-                </a></li>
-            </ul>
-          </li>
+<!--          <li class="nav-item">-->
+<!--            <a href="#" class="nav-link">-->
+<!--              <i class="fa fa-cog nav-icon"></i>-->
+<!--              <p>Settings <i class="fa fa-angle-right right"></i></p> <small class="label pull-right bg-green"></small>-->
+<!--            </a>-->
+<!--            <ul class="nav-treeview">-->
+<!--              <li><a href="--><?php //echo site_url("auth/app"); ?><!--" class="nav-link"><i class="far fa-circle nav-icon"></i>-->
+<!--                  <p>Api Key</p>-->
+<!--                </a></li>-->
+<!--            </ul>-->
+<!--          </li>-->
           <?php } ?>
         <?php } ?>
       </ul>
